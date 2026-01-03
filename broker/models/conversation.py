@@ -54,33 +54,3 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.sender.email} - {self.get_message_type_display()} - {self.content[:50]}"
 
-class DraftOrder(models.Model):
-    class OrderStatus(models.TextChoices):
-        DRAFT = 'DRAFT', _('Draft')
-        PENDING = 'PENDING', _('Pending')
-        CONFIRMED = 'CONFIRMED', _('Confirmed')
-        CANCELLED = 'CANCELLED', _('Cancelled')
-        COMPLETED = 'COMPLETED', _('Completed')
-
-    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='draft_orders')
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='draft_orders')
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='buyer_draft_orders')
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='seller_draft_orders')
-    quantity = models.PositiveIntegerField(_('quantity'), default=1)
-    price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, null=True, blank=True)
-    total_amount = models.DecimalField(_('total amount'), max_digits=12, decimal_places=2)
-    status = models.CharField(_('status'), max_length=20, choices=OrderStatus.choices, default=OrderStatus.DRAFT)
-    shipping_info = models.TextField(_('shipping info'), blank=True, null=True)
-    notes = models.TextField(_('notes'), blank=True, null=True)
-    metadata = models.JSONField(_('metadata'), blank=True, null=True)
-    expires_at = models.DateTimeField(_('expires at'), null=True, blank=True)
-    created_at = models.DateTimeField(_('created at'), auto_now_add=True)
-    updated_at = models.DateTimeField(_('updated at'), auto_now=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = _('draft order')
-        verbose_name_plural = _('draft orders')
-
-    def __str__(self):
-        return f"Draft Order #{self.id} - {self.listing.title} - {self.get_status_display()}"

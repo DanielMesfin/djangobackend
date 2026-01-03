@@ -1,0 +1,110 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/custom.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans 'Welcome to the Admin Dashboard' %}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{% trans 'Welcome to your admin dashboard. Use the navigation menu to manage your site.' %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if app_list %}
+            {% for app in app_list %}
+                <div class="col-md-6 col-xl-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ app.name }}</h5>
+                            <span class="badge bg-primary">{{ app.models|length }}</span>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0">
+                                {% for model in app.models %}
+                                    <li class="mb-2">
+                                        <a href="{{ model.admin_url }}" class="d-flex align-items-center text-decoration-none">
+                                            <i class="fas fa-chevron-right text-primary me-2"></i>
+                                            <span>{{ model.name }}</span>
+                                            {% if model.add_url %}
+                                                <a href="{{ model.add_url }}" class="ms-auto text-muted" title="{% trans 'Add' %}">
+                                                    <i class="fas fa-plus-circle"></i>
+                                                </a>
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    {% trans "You don't have permission to view or edit anything." %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if recent_actions %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{% trans 'Recent Actions' %}</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>{% trans 'Action' %}</th>
+                                    <th>{% trans 'Object' %}</th>
+                                    <th>{% trans 'User' %}</th>
+                                    <th>{% trans 'Time' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in recent_actions %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-{{ entry.is_addition|yesno:'success,change,delete' }}">
+                                            {{ entry.get_change_message }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if entry.content_type %}
+                                            <a href="{{ entry.get_admin_url }}" class="text-decoration-none">
+                                                {{ entry.object_repr|truncatewords:10 }}
+                                            </a>
+                                        {% else %}
+                                            {{ entry.object_repr }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.user.get_username }}</td>
+                                    <td>{{ entry.action_time|timesince }} ago</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

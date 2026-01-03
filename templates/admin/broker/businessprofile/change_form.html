@@ -1,0 +1,43 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block after_field_sets %}
+  {{ block.super }}
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">{% trans "Related business documents" %}</h5>
+    </div>
+    <div class="card-body">
+      {% if related_business_documents %}
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>{% trans "Type" %}</th>
+                <th>{% trans "File name" %}</th>
+                <th>{% trans "Verified" %}</th>
+                <th>{% trans "Created" %}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in related_business_documents %}
+              <tr>
+                <td>{{ d.get_document_type_display }}</td>
+                <td>{{ d.file_name }}</td>
+                <td>{% if d.is_verified %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</td>
+                <td>{{ d.created_at }}</td>
+                <td>
+                  <a href="{% url 'admin:broker_businessdocument_change' d.id %}" class="btn btn-xs btn-outline-primary">{% trans "View" %}</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <em>{% trans "No documents found for this business." %}</em>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

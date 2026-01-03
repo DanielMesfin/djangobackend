@@ -17,7 +17,7 @@ try:
         UserProfile, SocialLink, BusinessProfile, BusinessMember,
         Promotion, PromotionClaim, Transaction, Wallet,
         KYCVerification, BusinessDocument, Campaign, CampaignCollaborator,
-        CampaignProduct, Listing, Conversation, Message, DraftOrder
+        CampaignProduct, Listing, Conversation, Message
     )
     from product.models import Product, Order, OrderItem, Review, Category
 except ImportError as e:
@@ -111,7 +111,6 @@ class Command(BaseCommand):
 
     def clear_data(self):
         """Clear existing data"""
-        DraftOrder.objects.all().delete()
         Message.objects.all().delete()
         Conversation.objects.all().delete()
         CampaignProduct.objects.all().delete()

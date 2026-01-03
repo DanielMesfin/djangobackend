@@ -12,7 +12,7 @@ try:
         User, UserProfile, BusinessProfile, BusinessMember,
         Promotion, PromotionClaim, Transaction, Wallet,
         KYCVerification, BusinessDocument, Campaign, CampaignCollaborator,
-        CampaignProduct, Listing, Conversation, Message, DraftOrder
+        CampaignProduct, Listing, Conversation, Message
     )
     from product.models import Product, Order, OrderItem, Review, Category
 except ImportError:

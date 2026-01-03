@@ -27,8 +27,8 @@ class BusinessProfile(models.Model):
         return self.business_name
 
     class Meta:
-        verbose_name = _('business profile')
-        verbose_name_plural = _('business profiles')
+        verbose_name = _('business')
+        verbose_name_plural = _('businesses')
 
 class BusinessMember(models.Model):
     class Role(models.TextChoices):

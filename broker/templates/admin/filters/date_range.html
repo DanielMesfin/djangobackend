@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="filter date-range-filter">
+  <h3>{% blocktrans %}{{ spec.title }}{% endblocktrans %}</h3>
+  <form method="get">
+    {# Preserve existing params except our own and pagination #}
+    {% for k, v in request.GET.items %}
+      {% if k != spec.start_param and k != spec.end_param and k != 'p' %}
+        <input type="hidden" name="{{ k }}" value="{{ v }}" />
+      {% endif %}
+    {% endfor %}
+
+    <div class="form-row" style="display:flex; gap: .5rem; align-items: center;">
+      <input type="date" name="{{ spec.start_param }}" class="vDateField form-control" placeholder="YYYY-MM-DD" />
+      <span>–</span>
+      <input type="date" name="{{ spec.end_param }}" class="vDateField form-control" placeholder="YYYY-MM-DD" />
+      <button type="submit" class="btn btn-sm btn-primary">{% trans "Apply" %}</button>
+      <a href="?{% for k, v in request.GET.items %}{% if k != spec.start_param and k != spec.end_param and k != 'p' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}" class="btn btn-sm btn-secondary">{% trans "Clear" %}</a>
+    </div>
+  </form>
+</div>

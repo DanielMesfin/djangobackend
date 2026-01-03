@@ -1,0 +1,73 @@
+/* Minimal dark mode overrides for Jazzmin/Admin */
+:root.dark-mode,
+body.dark-mode {
+  color-scheme: dark;
+  --bg: #0f1216;
+  --bg-alt: #151a21;
+  --fg: #e6e8eb;
+  --muted: #9aa4b2;
+  --border: #2a2f38;
+  --primary: #4f79ff;
+  --success: #3fbf7f;
+  --warning: #f0ad4e;
+  --danger: #ff6b6b;
+}
+
+body.dark-mode {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+}
+
+body.dark-mode .main-header,
+body.dark-mode .navbar,
+body.dark-mode .content-wrapper .content-header,
+body.dark-mode .content-header,
+body.dark-mode .main-sidebar,
+body.dark-mode .brand-link {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-mode a { color: var(--primary); }
+
+body.dark-mode .card,
+body.dark-mode .box,
+body.dark-mode .info-box,
+body.dark-mode .content-wrapper,
+body.dark-mode .content,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu,
+body.dark-mode .table,
+body.dark-mode .form-control,
+body.dark-mode .select2-container--default .select2-selection--single,
+body.dark-mode .select2-dropdown {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-mode .table thead th {
+  background-color: #1b212a !important;
+  color: var(--fg) !important;
+}
+
+body.dark-mode .table tbody tr:nth-child(even) {
+  background-color: #141922 !important;
+}
+
+body.dark-mode .btn-outline-secondary { color: var(--fg); border-color: var(--border); }
+body.dark-mode .btn-outline-secondary:hover { background-color: #222836; }
+
+/* Django messages */
+body.dark-mode .alert-info { background: #142238; color: #8fb3ff; border-color: #1b2a44; }
+body.dark-mode .alert-success { background: #122a20; color: #74d6aa; border-color: #1a3a2b; }
+body.dark-mode .alert-warning { background: #2a2414; color: #f3c77a; border-color: #3a2e15; }
+body.dark-mode .alert-danger, 
+body.dark-mode .alert-error { background: #331a1a; color: #ff9a9a; border-color: #3f1e1e; }
+
+/* Forms */
+body.dark-mode .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 .2rem rgba(79, 121, 255, .15); }
+
+/* Theme toggle placement tweak for header */
+#theme-toggle { margin-left: 12px; }

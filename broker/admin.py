@@ -14,7 +14,7 @@ from .models import (
     UserProfile, SocialLink, BusinessProfile, BusinessMember,
     Promotion, PromotionClaim, Transaction, Wallet,
     KYCVerification, BusinessDocument, Campaign, CampaignCollaborator,
-    CampaignProduct, Listing, Conversation, Message, DraftOrder
+    CampaignProduct, Listing, Conversation, Message
 )
 
 User = get_user_model()
@@ -304,22 +304,6 @@ class CampaignProductAdmin(admin.ModelAdmin):
     list_per_page = 20
     show_full_result_count = False
 
-@admin.register(DraftOrder)
-class DraftOrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'conversation_link', 'listing', 'status', 'total_amount', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('conversation__id', 'listing__title', 'buyer__email', 'seller__email')
-    date_hierarchy = 'created_at'
-    raw_id_fields = ('conversation', 'listing', 'buyer', 'seller')
-    list_per_page = 20
-    show_full_result_count = False
-
-    def conversation_link(self, obj):
-        if obj.conversation:
-            url = reverse('admin:broker_conversation_change', args=[obj.conversation.id])
-            return format_html('<a href="{}">{}</a>', url, obj.conversation.id)
-    conversation_link.short_description = 'Conversation'
-    conversation_link.admin_order_field = 'conversation'
 
 # Unregister the default User admin and register our custom admin
 # Only unregister if already registered (e.g., if it was auto-registered)
