@@ -1,0 +1,47 @@
+{% load i18n jazzmin admin_list %}
+{% load i18n static %}
+
+{% if pagination_required %}
+<div class="pagination">
+    <div class="col-12 col-sm-6">
+        <div class="dataTables_info" id="example2_info" role="status" aria-live="polite">
+            {{ cl.result_count }} {% if cl.result_count == 1 %}{{ cl.opts.verbose_name }}{% else %}{{ cl.opts.verbose_name_plural }}{% endif %}
+            {% if show_all_url %}
+                <a href="{{ show_all_url }}" class="showall">{% trans 'Show all' %}</a>
+            {% endif %}
+            {% if cl.formset and cl.result_count %}
+                <input type="submit" name="_save" class="default" value="{% trans 'Save' %}">
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-12 col-sm-6">
+        <div class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+                {% if show_first %}
+                    <li class="page-item"><a href="?p=1{{ getvars }}" class="page-link">&laquo; {% trans 'first' %}</a></li>
+                {% endif %}
+                {% if has_previous %}
+                    <li class="page-item"><a href="?p={{ previous_page_number }}{{ getvars }}" class="page-link">&lsaquo; {% trans 'previous' %}</a></li>
+                {% endif %}
+                
+                {% for page in page_range %}
+                    {% if page == '.' %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% else %}
+                        <li class="page-item{% if page == page_num %} active{% endif %}">
+                            <a href="?p={{ page }}{{ getvars }}" class="page-link">{{ page }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if has_next %}
+                    <li class="page-item"><a href="?p={{ next_page_number }}{{ getvars }}" class="page-link">{% trans 'next' %} &rsaquo;</a></li>
+                {% endif %}
+                {% if show_last %}
+                    <li class="page-item"><a href="?p={{ pages }}{{ getvars }}" class="page-link">{% trans 'last' %} &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}

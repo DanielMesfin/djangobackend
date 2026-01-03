@@ -54,7 +54,6 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ('price',)
     list_per_page = 20
     show_full_result_count = False
-    change_list_template = 'admin/change_list.html'
     
     def stock_status(self, obj):
         if obj.stock < 10:
