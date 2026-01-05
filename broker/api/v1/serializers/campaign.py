@@ -1,6 +1,7 @@
 # broker/api/v1/serializers/campaign.py
 from rest_framework import serializers
-from broker.models.campaign import Campaign, CampaignCollaborator, CampaignProduct
+from broker.models.campaign import Campaign, CampaignCollaborator
+from broker.models.listing import CampaignProduct
 
 class CampaignProductSerializer(serializers.ModelSerializer):
     class Meta:

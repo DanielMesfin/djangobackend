@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config
+from .theme import JAZZMIN_UI_TWEAKS as THEME_UI_TWEAKS
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -160,7 +161,10 @@ JAZZMIN_SETTINGS = {
     "hide_apps": [],
     
     # Hide these models when generating side menu (e.g auth.user)
-    "hide_models": [],
+    "hide_models": [
+        "broker.PromotionClaim",
+        "auth.Permission",
+    ],
     
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": ["broker", "product", "auth"],
@@ -236,41 +240,14 @@ JAZZMIN_SETTINGS = {
     "changeform_format": "horizontal_tabs",
     # override change forms on a per modeladmin basis
     "changeform_format_overrides": {
-        "broker.User": "collapsible",
+        "broker.User": "horizontal_tabs",
+        "broker.PromotionClaim": "single",
+        "broker.Promotion": "single",
         "auth.group": "vertical_tabs",
     },
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
 
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-primary",
-    "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "default",
-    "dark_mode_theme": None,
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    }
-}
+JAZZMIN_UI_TWEAKS = THEME_UI_TWEAKS
+

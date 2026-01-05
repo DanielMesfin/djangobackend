@@ -12,12 +12,18 @@ class UserProfileViewSet(BaseViewSet):
     """
     ViewSet for managing user profiles.
     """
+    queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
+    filterset_fields = ['is_verified']
+    search_fields = ['user__email', 'bio', 'location']
+    ordering_fields = ['created_at']
     
     def get_queryset(self):
-        return UserProfile.objects.filter(user=self.request.user)
+        if self.request.user.is_staff:
+            return UserProfile.objects.all().select_related('user', 'social_links')
+        return UserProfile.objects.filter(user=self.request.user).select_related('user', 'social_links')
     
     def get_object(self):
         return self.request.user.profile
@@ -58,11 +64,19 @@ class UserSocialLinkViewSet(BaseViewSet):
     """
     ViewSet for managing user social links.
     """
+    queryset = SocialLink.objects.all()
     serializer_class = SocialLinkSerializer
     permission_classes = [IsAuthenticated]
+    filterset_fields = []
+    search_fields = ['user_profile__user__email']
+    ordering_fields = ['updated_at']
     
     def get_queryset(self):
-        return SocialLink.objects.filter(user=self.request.user)
+        if self.request.user.is_staff:
+            return SocialLink.objects.all().select_related('user_profile__user')
+        return SocialLink.objects.filter(
+            user_profile__user=self.request.user
+        ).select_related('user_profile__user')
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

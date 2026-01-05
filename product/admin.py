@@ -52,7 +52,7 @@ class ProductAdmin(admin.ModelAdmin):
     raw_id_fields = ('seller', 'category')
     readonly_fields = ('created_at', 'updated_at')
     list_editable = ('price',)
-    list_per_page = 20
+    list_per_page = 25
     show_full_result_count = False
     
     def stock_status(self, obj):
@@ -87,6 +87,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     raw_id_fields = ('buyer',)
     actions = ['mark_as_shipped']
+    list_per_page = 25
     
     def item_count(self, obj):
         return obj.items.count()
@@ -115,6 +116,7 @@ class ReviewAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     raw_id_fields = ('product', 'user')
     readonly_fields = ('created_at',)
+    list_per_page = 25
     
     def product_link(self, obj):
         url = reverse('admin:product_product_change', args=[obj.product_id])

@@ -7,8 +7,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.admin import SimpleListFilter
-from django import forms
-from django.db.models import Q
 
 User = get_user_model()
 
@@ -89,7 +87,7 @@ class CustomUserAdmin(BaseUserAdmin):
 
 # Import and register other models
 from .models import (
-    UserProfile, SocialLink, BusinessProfile, BusinessMember,
+    UserProfile, BusinessProfile, BusinessMember,
     Campaign, CampaignCollaborator, CampaignProduct, Promotion,
     PromotionClaim, Transaction, Wallet, KYCVerification,
     BusinessDocument, Listing, Conversation, Message
@@ -147,15 +145,24 @@ class CampaignAdmin(admin.ModelAdmin):
 
 @admin.register(Promotion, site=admin_site)
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'business', 'category', 'is_active', 'start_date', 'end_date')
+    list_display = ('title', 'business', 'category', 'is_active', 'claimed_by_button', 'start_date', 'end_date')
     list_filter = ('category', 'is_active', 'start_date', 'end_date')
     search_fields = ('title', 'description', 'business__business_name')
     raw_id_fields = ('business',)
 
+    def claimed_by_button(self, obj):
+        from django.urls import reverse
+        from django.utils.html import format_html
+        count = obj.claims.count()
+        url = f"{reverse('admin:broker_promotionclaim_changelist')}?promotion__id__exact={obj.id}"
+        return format_html('<a class="button" href="{}">View claimants ({})</a>', url, count)
+    claimed_by_button.short_description = 'Claimed By'
+
 @admin.register(PromotionClaim, site=admin_site)
 class PromotionClaimAdmin(admin.ModelAdmin):
-    list_display = ('promotion', 'user', 'status', 'claimed_at')
-    list_filter = ('status', 'claimed_at')
+    # Show claimant next to timestamp for quicker scanning
+    list_display = ('user', 'claimed_at', 'promotion', 'points', 'shared_count')
+    list_filter = ('claimed_at',)
     search_fields = ('promotion__title', 'user__email')
     raw_id_fields = ('promotion', 'user')
 
@@ -179,13 +186,6 @@ class KYCVerificationAdmin(admin.ModelAdmin):
     list_filter = ('document_type', 'status', 'created_at')
     search_fields = ('user__email', 'document_number')
     raw_id_fields = ('user', 'verified_by')
-
-@admin.register(BusinessDocument, site=admin_site)
-class BusinessDocumentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'document_type', 'is_verified', 'created_at')
-    list_filter = ('document_type', 'is_verified', 'created_at')
-    search_fields = ('user__email', 'file_name')
-    raw_id_fields = ('user',)
 
 @admin.register(Listing, site=admin_site)
 class ListingAdmin(admin.ModelAdmin):

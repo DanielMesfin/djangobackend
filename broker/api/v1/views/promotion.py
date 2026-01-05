@@ -12,17 +12,23 @@ class PromotionViewSet(BaseViewSet):
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['status', 'promotion_type']
+    filterset_fields = ['category', 'is_active']
     search_fields = ['title', 'description']
+    ordering_fields = ['start_date', 'end_date', 'created_at']
 
     def get_queryset(self):
-        return self.queryset.filter(
-            models.Q(created_by=self.request.user) |
-            models.Q(status='active')
-        ).distinct().prefetch_related('claims')
+        queryset = self.queryset
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(
+                models.Q(business__user=self.request.user) |
+                models.Q(business__members__user=self.request.user) |
+                models.Q(is_active=True)
+            )
+        return queryset.select_related('business').prefetch_related('claims__user').distinct()
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        # Business is required and should be set in serializer
+        serializer.save()
 
     @action(detail=True, methods=['post'])
     def claim(self, request, pk=None):
@@ -49,22 +55,26 @@ class PromotionViewSet(BaseViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PromotionClaimViewSet(BaseViewSet):
+    queryset = PromotionClaim.objects.all()
     serializer_class = PromotionClaimSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['status', 'user', 'promotion']
-    
+    filterset_fields = []
+    search_fields = ['promotion__title', 'user__email']
+    ordering_fields = ['claimed_at']
+
     def get_queryset(self):
-        return PromotionClaim.objects.filter(
-            models.Q(user=self.request.user) |
-            models.Q(promotion__created_by=self.request.user)
-        ).distinct().select_related('user', 'promotion')
+        if self.request.user.is_staff:
+            return PromotionClaim.objects.all().select_related('promotion', 'user')
+        return PromotionClaim.objects.filter(user=self.request.user).select_related(
+            'promotion', 'user'
+        )
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def approve(self, request, pk=None):
         claim = self.get_object()
-        if claim.promotion.created_by != request.user:
+        if claim.promotion.business.user != request.user:
             return Response(
-                {'error': 'Only the promotion creator can approve claims'},
+                {'error': 'Only the business owner can approve claims'},
                 status=status.HTTP_403_FORBIDDEN
             )
             
@@ -75,9 +85,9 @@ class PromotionClaimViewSet(BaseViewSet):
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def reject(self, request, pk=None):
         claim = self.get_object()
-        if claim.promotion.created_by != request.user:
+        if claim.promotion.business.user != request.user:
             return Response(
-                {'error': 'Only the promotion creator can reject claims'},
+                {'error': 'Only the business owner can reject claims'},
                 status=status.HTTP_403_FORBIDDEN
             )
             

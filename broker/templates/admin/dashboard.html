@@ -455,6 +455,10 @@
     <i class="fas fa-moon" id="themeIcon"></i>
 </button>
 
+{# Embed data safely as JSON to avoid inline JS parsing issues #}
+{{ stats.users.growth_data|json_script:"user-growth-data" }}
+{{ stats.transactions.growth_data|json_script:"transaction-growth-data" }}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     // Theme Toggle
@@ -480,9 +484,29 @@
         const btn = event.target.closest('.refresh-btn');
         const icon = btn.querySelector('i');
         icon.classList.add('fa-spin');
-        setTimeout(() => {
-            location.reload();
-        }, 500);
+        
+        // Use AJAX to refresh dashboard data
+        fetch('/api/v1/admin/dashboard/stats/?refresh=true&days=' + {{ date_range_days|default:30 }}, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                icon.classList.remove('fa-spin');
+                alert('Failed to refresh dashboard');
+            }
+        })
+        .catch(error => {
+            icon.classList.remove('fa-spin');
+            console.error('Error refreshing dashboard:', error);
+            location.reload(); // Fallback to full page reload
+        });
     }
     
     // Date Range Filter
@@ -527,7 +551,7 @@
     }, 30000);
     
     // User Growth Chart
-    const userGrowthData = {{ stats.users.growth_data|default:"[]"|safe }};
+    const userGrowthData = JSON.parse(document.getElementById('user-growth-data').textContent || '[]');
     const userLabels = userGrowthData.length > 0 ? userGrowthData.map(item => new Date(item.day).toLocaleDateString()) : [];
     const userCounts = userGrowthData.length > 0 ? userGrowthData.map(item => item.count) : [];
     
@@ -561,7 +585,7 @@
     });
     
     // Transaction Chart
-    const transactionData = {{ stats.transactions.growth_data|default:"[]"|safe }};
+    const transactionData = JSON.parse(document.getElementById('transaction-growth-data').textContent || '[]');
     const transLabels = transactionData.length > 0 ? transactionData.map(item => new Date(item.day).toLocaleDateString()) : [];
     const transAmounts = transactionData.length > 0 ? transactionData.map(item => parseFloat(item.total || 0)) : [];
     

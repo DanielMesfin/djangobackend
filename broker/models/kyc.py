@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from .user import User
+from .business import BusinessProfile
 
 class KYCVerification(models.Model):
     class KYCStatus(models.TextChoices):
@@ -55,6 +56,8 @@ class BusinessDocument(models.Model):
         OTHER = 'OTHER', _('Other')
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploaded_documents')
+    # Link document to a specific business for admin inline/tab usage
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='documents', null=True, blank=True)
     document_type = models.CharField(_('document type'), max_length=50, choices=DocumentType.choices)
     file_url = models.URLField(_('file URL'))
     file_name = models.CharField(_('file name'), max_length=255)

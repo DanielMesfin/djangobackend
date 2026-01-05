@@ -10,11 +10,17 @@ from ..serializers.transaction import TransactionSerializer, WalletSerializer
 from .base import BaseViewSet
 
 class WalletViewSet(BaseViewSet):
+    queryset = Wallet.objects.all()
     serializer_class = WalletSerializer
     permission_classes = [IsAuthenticated]
+    filterset_fields = []
+    search_fields = ['user__email']
+    ordering_fields = ['updated_at']
     
     def get_queryset(self):
-        return Wallet.objects.filter(user=self.request.user)
+        if self.request.user.is_staff:
+            return Wallet.objects.all().select_related('user')
+        return Wallet.objects.filter(user=self.request.user).select_related('user')
 
     @action(detail=False, methods=['get'])
     def my_wallet(self, request):
@@ -43,11 +49,10 @@ class WalletViewSet(BaseViewSet):
         
         # Create a transaction record
         Transaction.objects.create(
-            sender=request.user,
-            recipient=request.user,
+            user=request.user,
             amount=amount,
-            transaction_type='deposit',
-            status='completed',
+            transaction_type='DEPOSIT',
+            status='COMPLETED',
             description=f'Added funds to wallet: ${amount:.2f}'
         )
         
@@ -57,15 +62,18 @@ class WalletViewSet(BaseViewSet):
         })
 
 class TransactionViewSet(BaseViewSet):
+    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
     permission_classes = [IsAuthenticated]
-    filterset_fields = ['transaction_type', 'status', 'sender', 'recipient']
+    filterset_fields = ['transaction_type', 'status']
+    search_fields = ['reference', 'description']
+    ordering_fields = ['created_at', 'amount']
     
     def get_queryset(self):
-        return Transaction.objects.filter(
-            models.Q(sender=self.request.user) |
-            models.Q(recipient=self.request.user)
-        ).distinct().select_related('sender', 'recipient')
+        queryset = Transaction.objects.all()
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(user=self.request.user)
+        return queryset.select_related('user')
 
     @action(detail=False, methods=['post'])
     def transfer(self, request):

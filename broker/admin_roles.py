@@ -3,8 +3,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
-from django import forms
-from django.db.models import Q
 
 User = get_user_model()
 
@@ -85,7 +83,7 @@ admin_site.register(User, UserAdmin)
 # Import and register other models with their custom admin classes
 from .models import (
     BusinessProfile, BusinessMember, Campaign, CampaignCollaborator,
-    Promotion, PromotionClaim, BusinessDocument
+    Promotion, PromotionClaim
 )
 
 @admin.register(BusinessProfile, site=admin_site)
@@ -130,13 +128,6 @@ class PromotionClaimAdmin(admin.ModelAdmin):
     list_filter = ('status', 'claimed_at')
     search_fields = ('promotion__title', 'user__email')
     raw_id_fields = ('promotion', 'user')
-
-@admin.register(BusinessDocument, site=admin_site)
-class BusinessDocumentAdmin(admin.ModelAdmin):
-    list_display = ('business', 'document_type', 'is_verified', 'uploaded_at')
-    list_filter = ('document_type', 'is_verified')
-    search_fields = ('business__name', 'document_number')
-    raw_id_fields = ('business',)
 
 # Update the default admin site
 admin.site = admin_site
