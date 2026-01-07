@@ -22,6 +22,9 @@ import product
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('broker.api.v1.urls.auth')),
+    path('', include('broker.api.v1.urls')),
     path('', include('product.urls')), 
+    path('api/v1/', include('broker.api.v1.urls.auth')),
     path('api/v1/', include('broker.api.v1.urls')),
 ]

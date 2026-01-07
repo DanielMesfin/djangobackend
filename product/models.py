@@ -12,6 +12,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 class Product(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='products')
@@ -25,6 +28,9 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ['-created_at']
 
 class Order(models.Model):
     ORDER_STATUS = [

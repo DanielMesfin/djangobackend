@@ -20,3 +20,4 @@ class PromotionClaimSerializer(serializers.ModelSerializer):
         read_only_fields = ('claimed_at', 'updated_at')
 
 
+
