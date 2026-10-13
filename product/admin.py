@@ -57,8 +57,8 @@ class ProductAdmin(admin.ModelAdmin):
     
     def stock_status(self, obj):
         if obj.stock < 10:
-            return format_html('<span style="color: red;">{}</span>', f'Low ({obj.stock})')
-        return obj.stock
+            return format_html('<span style="background-color: #FEE2E2; color: #EF4444; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">Low ({})</span>', obj.stock)
+        return format_html('<span style="background-color: #D1FAE5; color: #10B981; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">{}</span>', obj.stock)
     stock_status.admin_order_field = 'stock'
 
 class OrderItemInline(admin.TabularInline):
@@ -77,7 +77,7 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'buyer', 'order_date', 'status', 'total_amount', 'item_count')
+    list_display = ('id', 'buyer', 'order_date', 'status_badge', 'total_amount', 'item_count')
     list_filter = ('status', 'order_date')
     search_fields = (
         'buyer__email', 'buyer__first_name', 'buyer__last_name',
@@ -104,6 +104,22 @@ class OrderAdmin(admin.ModelAdmin):
             f'Successfully marked {updated} order(s) as shipped.',
             level='success'
         )
+
+    def status_badge(self, obj):
+        status_colors = {
+            'pending': {'bg': '#FEF3C7', 'text': '#F59E0B'},
+            'processing': {'bg': '#DBEAFE', 'text': '#3B82F6'},
+            'shipped': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'delivered': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'cancelled': {'bg': '#FEE2E2', 'text': '#EF4444'},
+        }
+        colors = status_colors.get(obj.status.lower(), {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.status
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'status'
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

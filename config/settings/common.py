@@ -5,7 +5,7 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY", default="django-insecure-local-development-key")
 
 # Custom user model
 AUTH_USER_MODEL = 'broker.User'
@@ -79,6 +79,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "broker" / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -171,22 +173,28 @@ JAZZMIN_SETTINGS = {
     #############
     # Side Menu #
     #############
-    
+
     # Whether to display the side menu
     "show_sidebar": True,
-    
+
     # Whether to aut expand the menu
     "navigation_expanded": True,
-    
+
     # Hide these apps when generating side menu e.g (auth)
     "hide_apps": [],
-    
+
     # Hide these models when generating side menu (e.g auth.user)
     "hide_models": [
         "broker.PromotionClaim",
+        "broker.BusinessDocument",
+        "broker.BusinessMember",
+        "broker.CampaignCollaborator",
+        "broker.CampaignProduct",
+        "broker.Message",
+        "broker.SocialLink",
         "auth.Permission",
     ],
-    
+
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": ["broker", "product", "auth"],
     
@@ -203,29 +211,29 @@ JAZZMIN_SETTINGS = {
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.2,5.0.3,5.0.4
     # for the full list of 5.13.0 free icon classes
     "icons": {
-        "auth": "fas fa-users-cog",
+        "auth": "fas fa-shield-halved",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
-        "broker.User": "fas fa-user-tie",
-        "broker.UserProfile": "fas fa-user-circle",
+        "broker.User": "fas fa-user-circle",
+        "broker.UserProfile": "fas fa-id-badge",
         "broker.BusinessProfile": "fas fa-building",
-        "broker.BusinessMember": "fas fa-user-friends",
-        "broker.Promotion": "fas fa-tags",
+        "broker.BusinessMember": "fas fa-user-group",
+        "broker.Promotion": "fas fa-percent",
         "broker.PromotionClaim": "fas fa-gift",
-        "broker.Transaction": "fas fa-exchange-alt",
+        "broker.Transaction": "fas fa-money-bill-transfer",
         "broker.Wallet": "fas fa-wallet",
-        "broker.KYCVerification": "fas fa-id-card",
-        "broker.BusinessDocument": "fas fa-file-alt",
+        "broker.KYCVerification": "fas fa-file-shield",
+        "broker.BusinessDocument": "fas fa-file-lines",
         "broker.Campaign": "fas fa-bullhorn",
-        "broker.CampaignCollaborator": "fas fa-users",
-        "broker.Listing": "fas fa-list",
+        "broker.CampaignCollaborator": "fas fa-handshake",
+        "broker.Listing": "fas fa-list-ul",
         "broker.Conversation": "fas fa-comments",
         "broker.Message": "fas fa-envelope",
-        "broker.DraftOrder": "fas fa-shopping-cart",
-        "product.Product": "fas fa-box",
-        "product.Category": "fas fa-folder",
-        "product.Order": "fas fa-shopping-bag",
-        "product.OrderItem": "fas fa-list-alt",
+        "broker.SocialLink": "fas fa-share-nodes",
+        "product.Product": "fas fa-box-open",
+        "product.Category": "fas fa-layer-group",
+        "product.Order": "fas fa-cart-shopping",
+        "product.OrderItem": "fas fa-list-check",
         "product.Review": "fas fa-star",
     },
     # Icons that are used when one is not manually specified
@@ -242,8 +250,8 @@ JAZZMIN_SETTINGS = {
     # UI Tweaks #
     #############
     # Relative paths to custom CSS/JS scripts (must be present in static files)
-    "custom_css": None,
-    "custom_js": None,
+    "custom_css": ["admin/css/modern_admin.css", "admin/css/dark_mode.css"],
+    "custom_js": ["admin/js/mobile.js", "admin/js/dark_mode.js"],
     # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
     "use_google_fonts_cdn": True,
     # Whether to show the UI customizer on the sidebar

@@ -49,7 +49,7 @@ class KYCVerificationInline(admin.TabularInline):
 
 class CustomUserAdmin(BaseUserAdmin):
     inlines = (UserProfileInline, WalletInline, KYCVerificationInline)
-    list_display = ('email', 'full_name', 'role', 'is_staff', 'is_active', 'date_joined')
+    list_display = ('email', 'full_name', 'role_badge', 'is_staff', 'is_active', 'date_joined')
     list_filter = ('role', 'is_staff', 'is_superuser', 'is_active', 'is_verified', 'date_joined')
     search_fields = ('email', 'first_name', 'last_name', 'phone')
     ordering = ('-date_joined',)
@@ -90,6 +90,23 @@ class CustomUserAdmin(BaseUserAdmin):
         return obj.get_full_name()
     full_name.short_description = 'Full Name'
     full_name.admin_order_field = 'first_name'
+
+    def role_badge(self, obj):
+        """Display role as a modern badge"""
+        role_colors = {
+            'ADMIN': {'bg': '#DBEAFE', 'text': '#3B82F6'},
+            'BUSINESS_OWNER': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'INFLUENCER': {'bg': '#FEF3C7', 'text': '#F59E0B'},
+            'CLIENT': {'bg': '#E5E7EB', 'text': '#6B7280'},
+            'PREMIUM': {'bg': '#FEE2E2', 'text': '#EF4444'},
+        }
+        colors = role_colors.get(obj.role, {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.get_role_display()
+        )
+    role_badge.short_description = 'Role'
+    role_badge.admin_order_field = 'role'
     
     def get_fieldsets(self, request, obj=None):
         """Customize fieldsets based on user role"""
@@ -187,7 +204,7 @@ class BusinessMemberInline(admin.TabularInline):
 
 @admin.register(BusinessProfile)
 class BusinessProfileAdmin(admin.ModelAdmin):
-    list_display = ('business_name', 'user_email', 'business_type', 'industry', 'is_verified', 'doc_count', 'member_count', 'created_at')
+    list_display = ('business_name', 'user_email', 'business_type', 'industry', 'verification_badge', 'doc_count', 'member_count', 'created_at')
     list_filter = ('business_type', 'industry', 'is_verified', 'created_at')
     search_fields = ('business_name', 'user__email', 'description', 'industry')
     date_hierarchy = 'created_at'
@@ -219,8 +236,10 @@ class BusinessProfileAdmin(admin.ModelAdmin):
         count = obj.documents.count() if hasattr(obj, 'documents') else 0
         if count == 0 and obj.user:
             count = obj.user.uploaded_documents.count()
-        return format_html('<span style="color: {};">{}</span>', 
-                         'green' if count > 0 else 'gray', count)
+        bg_color = '#D1FAE5' if count > 0 else '#E5E7EB'
+        text_color = '#10B981' if count > 0 else '#6B7280'
+        return format_html('<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600;">{}</span>',
+                         bg_color, text_color, count)
     doc_count.short_description = 'Documents'
     doc_count.admin_order_field = 'user__uploaded_documents__count'
     
@@ -229,12 +248,24 @@ class BusinessProfileAdmin(admin.ModelAdmin):
     member_count.short_description = 'Members'
     member_count.admin_order_field = 'members__count'
 
+    def verification_badge(self, obj):
+        bg_color = '#D1FAE5' if obj.is_verified else '#FEF3C7'
+        text_color = '#10B981' if obj.is_verified else '#F59E0B'
+        text = 'Verified' if obj.is_verified else 'Pending'
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            bg_color, text_color, text
+        )
+    verification_badge.short_description = 'Status'
+    verification_badge.admin_order_field = 'is_verified'
+    verification_badge.boolean = False
+
 # BusinessMember is now managed as inline in BusinessProfile
 # Removed separate admin registration to simplify UI
 
 @admin.register(Promotion)
 class PromotionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'business_name', 'category', 'is_active', 'claims_info', 'claimed_by_button', 'start_date', 'end_date')
+    list_display = ('title', 'business_name', 'category', 'status_badge', 'claims_info', 'claimed_by_button', 'start_date', 'end_date')
     list_filter = ('category', 'is_active', 'start_date', 'end_date')
     search_fields = ('title', 'description', 'business__business_name')
     date_hierarchy = 'start_date'
@@ -268,9 +299,24 @@ class PromotionAdmin(admin.ModelAdmin):
 
     def claimed_by_button(self, obj):
         count = obj.claims.count()
-        url = f"{reverse('admin:broker_promotionclaim_changelist')}?promotion__id__exact={obj.id}"
+        try:
+            url = f"{reverse('admin:broker_promotionclaim_changelist')}?promotion__id__exact={obj.id}"
+        except:
+            url = "#"
         return format_html('<a class="button" href="{}">View claimants ({})</a>', url, count)
     claimed_by_button.short_description = 'Claimed By'
+
+    def status_badge(self, obj):
+        bg_color = '#D1FAE5' if obj.is_active else '#FEE2E2'
+        text_color = '#10B981' if obj.is_active else '#EF4444'
+        text = 'Active' if obj.is_active else 'Inactive'
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            bg_color, text_color, text
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'is_active'
+    status_badge.boolean = False
 
 @admin.register(PromotionClaim)
 class PromotionClaimAdmin(admin.ModelAdmin):
@@ -297,7 +343,7 @@ class PromotionClaimAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user_email', 'amount', 'transaction_type', 'status', 'description_short', 'created_at')
+    list_display = ('id', 'user_email', 'amount', 'transaction_type', 'status_badge', 'description_short', 'created_at')
     list_filter = ('transaction_type', 'status', 'created_at')
     search_fields = ('user__email', 'reference', 'description')
     date_hierarchy = 'created_at'
@@ -331,6 +377,21 @@ class TransactionAdmin(admin.ModelAdmin):
             return obj.description[:50] + ('...' if len(obj.description) > 50 else '')
         return '-'
     description_short.short_description = 'Description'
+
+    def status_badge(self, obj):
+        status_colors = {
+            'completed': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'pending': {'bg': '#FEF3C7', 'text': '#F59E0B'},
+            'failed': {'bg': '#FEE2E2', 'text': '#EF4444'},
+            'cancelled': {'bg': '#E5E7EB', 'text': '#6B7280'},
+        }
+        colors = status_colors.get(obj.status.lower(), {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.status
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'status'
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
@@ -402,16 +463,24 @@ class KYCVerificationAdmin(admin.ModelAdmin):
     
     def status_badge(self, obj):
         colors = {
-            'PENDING': 'orange',
-            'APPROVED': 'green',
-            'REJECTED': 'red',
-            'SUSPENDED': 'gray',
-            'DELETED': 'black'
+            'PENDING': '#F59E0B',
+            'APPROVED': '#10B981',
+            'REJECTED': '#EF4444',
+            'SUSPENDED': '#6B7280',
+            'DELETED': '#374151'
         }
-        color = colors.get(obj.status, 'gray')
+        bg_colors = {
+            'PENDING': '#FEF3C7',
+            'APPROVED': '#D1FAE5',
+            'REJECTED': '#FEE2E2',
+            'SUSPENDED': '#E5E7EB',
+            'DELETED': '#D1D5DB'
+        }
+        color = colors.get(obj.status, '#6B7280')
+        bg_color = bg_colors.get(obj.status, '#E5E7EB')
         return format_html(
-            '<span style="color: {}; font-weight: bold;">{}</span>',
-            color, obj.get_status_display()
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            bg_color, color, obj.get_status_display()
         )
     status_badge.short_description = 'Status'
     status_badge.admin_order_field = 'status'
@@ -438,7 +507,7 @@ class CampaignProductInline(admin.TabularInline):
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('name', 'business_name', 'status', 'budget', 'collab_count', 'product_count', 'start_date', 'end_date')
+    list_display = ('name', 'business_name', 'status_badge', 'budget', 'collab_count', 'product_count', 'start_date', 'end_date')
     list_filter = ('status', 'start_date', 'end_date', 'is_public')
     search_fields = ('name', 'description', 'business__business_name')
     date_hierarchy = 'start_date'
@@ -480,12 +549,27 @@ class CampaignAdmin(admin.ModelAdmin):
         return obj.campaign_products.count()
     product_count.short_description = 'Products'
 
+    def status_badge(self, obj):
+        status_colors = {
+            'ACTIVE': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'DRAFT': {'bg': '#E5E7EB', 'text': '#6B7280'},
+            'COMPLETED': {'bg': '#DBEAFE', 'text': '#3B82F6'},
+            'CANCELLED': {'bg': '#FEE2E2', 'text': '#EF4444'},
+        }
+        colors = status_colors.get(obj.status, {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.get_status_display()
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'status'
+
 # CampaignCollaborator is now managed as inline in Campaign
 # Removed separate admin registration to simplify UI
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('title', 'listing_type', 'price', 'status', 'user_email', 'business_name', 'is_active', 'created_at')
+    list_display = ('title', 'listing_type', 'price', 'status_badge', 'user_email', 'business_name', 'active_badge', 'created_at')
     list_filter = ('listing_type', 'status', 'category', 'is_active', 'created_at')
     search_fields = ('title', 'description', 'user__email', 'business__business_name', 'category')
     date_hierarchy = 'created_at'
@@ -528,6 +612,33 @@ class ListingAdmin(admin.ModelAdmin):
     business_name.short_description = 'Business'
     business_name.admin_order_field = 'business__business_name'
 
+    def status_badge(self, obj):
+        status_colors = {
+            'PUBLISHED': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'DRAFT': {'bg': '#E5E7EB', 'text': '#6B7280'},
+            'SOLD': {'bg': '#DBEAFE', 'text': '#3B82F6'},
+            'EXPIRED': {'bg': '#FEE2E2', 'text': '#EF4444'},
+        }
+        colors = status_colors.get(obj.status, {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.get_status_display()
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'status'
+
+    def active_badge(self, obj):
+        bg_color = '#D1FAE5' if obj.is_active else '#FEE2E2'
+        text_color = '#10B981' if obj.is_active else '#EF4444'
+        text = 'Active' if obj.is_active else 'Inactive'
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            bg_color, text_color, text
+        )
+    active_badge.short_description = 'Active'
+    active_badge.admin_order_field = 'is_active'
+    active_badge.boolean = False
+
 # Message Inline
 class MessageInline(admin.TabularInline):
     model = Message
@@ -546,7 +657,7 @@ class MessageInline(admin.TabularInline):
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'listing_title', 'buyer_email', 'seller_email', 'status', 'message_count', 'last_message_at')
+    list_display = ('id', 'listing_title', 'buyer_email', 'seller_email', 'status_badge', 'message_count', 'last_message_at')
     list_filter = ('status', 'last_message_at')
     search_fields = ('listing__title', 'buyer__email', 'seller__email')
     date_hierarchy = 'last_message_at'
@@ -585,6 +696,20 @@ class ConversationAdmin(admin.ModelAdmin):
     def message_count(self, obj):
         return obj.messages.count()
     message_count.short_description = 'Messages'
+
+    def status_badge(self, obj):
+        status_colors = {
+            'ACTIVE': {'bg': '#D1FAE5', 'text': '#10B981'},
+            'CLOSED': {'bg': '#E5E7EB', 'text': '#6B7280'},
+            'ARCHIVED': {'bg': '#FEE2E2', 'text': '#EF4444'},
+        }
+        colors = status_colors.get(obj.status, {'bg': '#E5E7EB', 'text': '#6B7280'})
+        return format_html(
+            '<span style="background-color: {}; color: {}; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.025em;">{}</span>',
+            colors['bg'], colors['text'], obj.status
+        )
+    status_badge.short_description = 'Status'
+    status_badge.admin_order_field = 'status'
 
 # Message is now managed as inline in Conversation
 # Removed separate admin registration to simplify UI

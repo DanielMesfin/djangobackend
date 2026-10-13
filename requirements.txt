@@ -12,3 +12,4 @@ sqlparse==0.5.5
 tzdata==2025.3
 python-decouple==3.8
 drf-nested-routers>=0.95.0
+psycopg[binary]>=3.2.0

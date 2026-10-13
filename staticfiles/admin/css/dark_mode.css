@@ -1,0 +1,205 @@
+/* Enhanced dark mode overrides for Jazzmin/Admin with modern design system */
+:root.dark-mode,
+body.dark-mode {
+  color-scheme: dark;
+  --bg: #111827;
+  --bg-alt: #1F2937;
+  --fg: #F3F4F6;
+  --muted: #9CA3AF;
+  --border: #374151;
+  --primary: #4F46E5;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+}
+
+body.dark-mode {
+  background-color: var(--bg) !important;
+  color: var(--fg) !important;
+}
+
+body.dark-mode .main-header,
+body.dark-mode .navbar,
+body.dark-mode .content-wrapper .content-header,
+body.dark-mode .content-header,
+body.dark-mode .main-sidebar,
+body.dark-mode .brand-link {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-mode a { color: var(--primary); }
+
+body.dark-mode .card,
+body.dark-mode .box,
+body.dark-mode .info-box,
+body.dark-mode .content-wrapper,
+body.dark-mode .content,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu,
+body.dark-mode .table,
+body.dark-mode .form-control,
+body.dark-mode .select2-container--default .select2-selection--single,
+body.dark-mode .select2-dropdown {
+  background-color: var(--bg-alt) !important;
+  color: var(--fg) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-mode .table thead th {
+  background-color: #111827 !important;
+  color: var(--muted) !important;
+}
+
+body.dark-mode .table tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+body.dark-mode .table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.dark-mode .btn-outline-secondary {
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Django messages */
+body.dark-mode .alert-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #93C5FD;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+body.dark-mode .alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #6EE7B7;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+body.dark-mode .alert-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #FCD34D;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+body.dark-mode .alert-danger,
+body.dark-mode .alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Forms */
+body.dark-mode .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.2);
+}
+
+body.dark-mode .form-control::placeholder {
+  color: var(--muted);
+}
+
+/* Sidebar */
+body.dark-mode .sidebar {
+  background-color: #111827 !important;
+}
+
+body.dark-mode .sidebar .nav-link {
+  color: var(--muted);
+}
+
+body.dark-mode .sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--fg);
+}
+
+body.dark-mode .sidebar .nav-link.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Breadcrumb */
+body.dark-mode .breadcrumb-item a {
+  color: var(--muted);
+}
+
+body.dark-mode .breadcrumb-item.active {
+  color: var(--fg);
+}
+
+/* Pagination */
+body.dark-mode .page-link {
+  color: var(--fg);
+  border-color: var(--border);
+  background-color: var(--bg-alt);
+}
+
+body.dark-mode .page-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--muted);
+}
+
+body.dark-mode .page-item.active .page-link {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Filter sidebar */
+body.dark-mode .changelist-filter {
+  background-color: var(--bg-alt);
+  border-color: var(--border);
+}
+
+body.dark-mode .changelist-filter h2 {
+  color: var(--fg);
+}
+
+/* Inline forms */
+body.dark-mode .inline-group .module {
+  background-color: var(--bg-alt);
+  border-color: var(--border);
+}
+
+body.dark-mode .inline-group h3 {
+  color: var(--fg);
+}
+
+/* Tabular inline */
+body.dark-mode .tabular thead th {
+  background-color: #111827;
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+body.dark-mode .tabular tbody td {
+  border-color: var(--border);
+}
+
+/* Theme toggle placement tweak for header */
+#theme-toggle { margin-left: 12px; }
+
+/* Scrollbar styling for dark mode */
+body.dark-mode::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.dark-mode::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+body.dark-mode::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+body.dark-mode::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}

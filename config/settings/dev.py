@@ -8,11 +8,11 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'brokerdb',
-        'USER': 'postgres',
-        'PASSWORD': '123456@Aa',
-        'HOST': 'localhost',
-        'PORT': '5555',
+        'NAME': config('DB_NAME', default='brokerdb'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='123456@Aa'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5555'),
     }
 }
 

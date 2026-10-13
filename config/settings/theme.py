@@ -1,10 +1,10 @@
 from typing import Dict
 
-# Centralized theme and color settings
+# Centralized theme and color settings - Modern professional palette
 THEME_COLORS: Dict[str, str] = {
     "brand_colour": "navbar-primary",
     "accent": "accent-primary",
-    "navbar": "navbar-dark",
+    "navbar": "navbar-light",  # Changed to light for cleaner modern look
     "sidebar": "sidebar-dark-primary",
 }
 
